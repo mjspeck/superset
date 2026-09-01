@@ -78,8 +78,8 @@ function lookup(map: Record<string, string>, key: string): string | undefined {
  * extension outranks the stem so `Dockerfile.md` stays markdown while
  * `Dockerfile.prod` resolves to dockerfile.
  *
- * Callers pass absolute host paths, so both separators count — on Windows
- * nothing would match a filename otherwise.
+ * Callers pass either an absolute host path or a repository-relative one, and
+ * both separators count — on Windows nothing would match a filename otherwise.
  */
 export function detectLanguage(filePath: string): string {
 	const fileName = filePath.split(/[/\\]/).pop()?.toLowerCase() ?? "";
