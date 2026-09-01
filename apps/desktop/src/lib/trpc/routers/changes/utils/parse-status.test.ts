@@ -391,4 +391,13 @@ describe("detectLanguage", () => {
 		expect(detectLanguage("Makefile")).toBe("makefile");
 		expect(detectLanguage("build/Makefile")).toBe("makefile");
 	});
+
+	test("ignores inherited Object properties as filenames", () => {
+		expect(detectLanguage("constructor")).toBe("plaintext");
+		expect(detectLanguage("__proto__")).toBe("plaintext");
+		expect(detectLanguage("toString")).toBe("plaintext");
+		expect(detectLanguage("src/valueOf")).toBe("plaintext");
+		expect(detectLanguage("file.constructor")).toBe("plaintext");
+		expect(detectLanguage("hasOwnProperty.prod")).toBe("plaintext");
+	});
 });

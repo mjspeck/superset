@@ -62,10 +62,26 @@ const extensionMap: Record<string, string> = {
 	gql: "graphql",
 };
 
+// Own-property lookup only. A file named `constructor` or `__proto__` would
+// otherwise pick up an inherited value and return something that is not a
+// language at all.
+function lookup(map: Record<string, string>, key: string): string | undefined {
+	return Object.hasOwn(map, key) ? map[key] : undefined;
+}
+
+/**
+ * Resolve a file path to the language id used by the CodeMirror editor and the
+ * diff viewer, or `"plaintext"` when nothing matches.
+ *
+ * Matching runs against the lowercased basename, in order: the whole filename
+ * (`Dockerfile`, `Makefile`), then the final extension, then the stem. The
+ * extension outranks the stem so `Dockerfile.md` stays markdown while
+ * `Dockerfile.prod` resolves to dockerfile.
+ */
 export function detectLanguage(filePath: string): string {
 	const fileName = filePath.split("/").pop()?.toLowerCase() ?? "";
 
-	const byFilename = filenameMap[fileName];
+	const byFilename = lookup(filenameMap, fileName);
 	if (byFilename) return byFilename;
 
 	const parts = fileName.split(".");
@@ -73,9 +89,8 @@ export function detectLanguage(filePath: string): string {
 
 	const ext = parts[parts.length - 1];
 
-	// A real extension wins over the stem, so `Dockerfile.md` stays markdown.
-	const byExtension = extensionMap[ext] ?? filenameMap[ext];
+	const byExtension = lookup(extensionMap, ext) ?? lookup(filenameMap, ext);
 	if (byExtension) return byExtension;
 
-	return filenameMap[parts[0]] ?? "plaintext";
+	return lookup(filenameMap, parts[0]) ?? "plaintext";
 }
