@@ -77,9 +77,12 @@ function lookup(map: Record<string, string>, key: string): string | undefined {
  * (`Dockerfile`, `Makefile`), then the final extension, then the stem. The
  * extension outranks the stem so `Dockerfile.md` stays markdown while
  * `Dockerfile.prod` resolves to dockerfile.
+ *
+ * Callers pass absolute host paths, so both separators count — on Windows
+ * nothing would match a filename otherwise.
  */
 export function detectLanguage(filePath: string): string {
-	const fileName = filePath.split("/").pop()?.toLowerCase() ?? "";
+	const fileName = filePath.split(/[/\\]/).pop()?.toLowerCase() ?? "";
 
 	const byFilename = lookup(filenameMap, fileName);
 	if (byFilename) return byFilename;

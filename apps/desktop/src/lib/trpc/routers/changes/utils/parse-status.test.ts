@@ -392,6 +392,14 @@ describe("detectLanguage", () => {
 		expect(detectLanguage("build/Makefile")).toBe("makefile");
 	});
 
+	test("handles Windows paths", () => {
+		expect(detectLanguage("C:\\Users\\me\\repo\\Dockerfile")).toBe(
+			"dockerfile",
+		);
+		expect(detectLanguage("docker\\Dockerfile.prod")).toBe("dockerfile");
+		expect(detectLanguage("src\\components\\Button.tsx")).toBe("typescript");
+	});
+
 	test("ignores inherited Object properties as filenames", () => {
 		expect(detectLanguage("constructor")).toBe("plaintext");
 		expect(detectLanguage("__proto__")).toBe("plaintext");
