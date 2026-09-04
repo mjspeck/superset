@@ -7,7 +7,10 @@ import { workspaceInitManager } from "main/lib/workspace-init-manager";
 import { z } from "zod";
 import { publicProcedure, router } from "../../..";
 import { attemptWorkspaceAutoRenameFromPrompt } from "../utils/ai-name";
-import { resolveWorkspaceBaseBranch } from "../utils/base-branch";
+import {
+	resolvePrBaseBranch,
+	resolveWorkspaceBaseBranch,
+} from "../utils/base-branch";
 import { setBranchBaseConfig } from "../utils/base-branch-config";
 import { resolveBranchPrefix } from "../utils/branch-prefix";
 import {
@@ -359,6 +362,13 @@ async function handleNewWorktree({
 
 	const knownBranches = await getKnownBranchesSafe(project.mainRepoPath);
 	const compareBaseBranch = resolveWorkspaceBaseBranch({
+		// A PR is reviewed against the branch it merges into, not the project
+		// default — a stacked PR would otherwise open showing its parent's
+		// commits as its own changes.
+		explicitBaseBranch: resolvePrBaseBranch({
+			baseRefName: prInfo.baseRefName,
+			knownBranches,
+		}),
 		workspaceBaseBranch: project.workspaceBaseBranch,
 		defaultBranch: project.defaultBranch,
 		knownBranches,

@@ -36,3 +36,25 @@ export function resolveWorkspaceBaseBranch({
 
 	return preferred;
 }
+
+/**
+ * The PR's own base branch, when the repo actually has it. A base that never
+ * landed locally (nor as a remote-tracking branch) would make every diff in
+ * the workspace fail, so those fall back to the project's default.
+ */
+export function resolvePrBaseBranch({
+	baseRefName,
+	knownBranches,
+}: {
+	baseRefName?: string;
+	knownBranches?: string[];
+}): string | undefined {
+	const base = normalizeBranch(baseRefName);
+	if (!base) {
+		return undefined;
+	}
+	if (knownBranches?.length && !knownBranches.includes(base)) {
+		return undefined;
+	}
+	return base;
+}
