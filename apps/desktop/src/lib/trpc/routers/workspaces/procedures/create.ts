@@ -366,9 +366,11 @@ async function handleNewWorktree({
 
 	const knownBranches = await getKnownBranchesSafe(project.mainRepoPath);
 	const compareBaseBranch = resolveWorkspaceBaseBranch({
-		// A PR is reviewed against the branch it merges into, not the project
-		// default — a stacked PR would otherwise open showing its parent's
-		// commits as its own changes.
+		// A PR is reviewed against the branch it merges into, not the project's
+		// configured base — a stacked PR would otherwise open showing its
+		// parent's commits as its own changes. A base we cannot compare
+		// against leaves the project's own precedence (configured base, then
+		// repo default) untouched.
 		explicitBaseBranch: resolvePrBaseBranch({
 			baseRefName: prInfo.baseRefName,
 			remoteBranches: knownBranches?.remote,
