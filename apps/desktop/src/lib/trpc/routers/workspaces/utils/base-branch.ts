@@ -38,22 +38,28 @@ export function resolveWorkspaceBaseBranch({
 }
 
 /**
- * The PR's own base branch, when the repo actually has it. A base that never
- * landed locally (nor as a remote-tracking branch) would make every diff in
- * the workspace fail, so those fall back to the project's default.
+ * The PR's own base branch, when the repo can actually compare against it.
+ * The changes view diffs against `origin/<base>` and reports a failed diff as
+ * an empty one, so a base with no remote-tracking ref — including one that
+ * exists only as a local branch — falls back to the project's default rather
+ * than showing the workspace as having no changes.
+ *
+ * `remoteBranches` carries remote-tracking names with "origin/" stripped;
+ * undefined means git could not be read, where the PR's own base is still the
+ * better guess.
  */
 export function resolvePrBaseBranch({
 	baseRefName,
-	knownBranches,
+	remoteBranches,
 }: {
 	baseRefName?: string;
-	knownBranches?: string[];
+	remoteBranches?: string[];
 }): string | undefined {
 	const base = normalizeBranch(baseRefName);
 	if (!base) {
 		return undefined;
 	}
-	if (knownBranches?.length && !knownBranches.includes(base)) {
+	if (remoteBranches && !remoteBranches.includes(base)) {
 		return undefined;
 	}
 	return base;

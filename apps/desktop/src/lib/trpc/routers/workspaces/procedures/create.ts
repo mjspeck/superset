@@ -320,12 +320,16 @@ interface HandleNewWorktreeParams {
 	workspaceName: string;
 }
 
+/**
+ * `remote` holds remote-tracking branches with the "origin/" prefix stripped,
+ * matching `all`'s shape. Undefined when git could not be read at all.
+ */
 async function getKnownBranchesSafe(
 	repoPath: string,
-): Promise<string[] | undefined> {
+): Promise<{ all: string[]; remote: string[] } | undefined> {
 	try {
 		const { local, remote } = await listBranches(repoPath);
-		return [...local, ...remote];
+		return { all: [...local, ...remote], remote };
 	} catch (error) {
 		console.warn(
 			`[workspaces/create] Failed to list branches for ${repoPath}:`,
@@ -367,11 +371,11 @@ async function handleNewWorktree({
 		// commits as its own changes.
 		explicitBaseBranch: resolvePrBaseBranch({
 			baseRefName: prInfo.baseRefName,
-			knownBranches,
+			remoteBranches: knownBranches?.remote,
 		}),
 		workspaceBaseBranch: project.workspaceBaseBranch,
 		defaultBranch: project.defaultBranch,
-		knownBranches,
+		knownBranches: knownBranches?.all,
 	});
 
 	const worktree = localDb
@@ -1070,7 +1074,7 @@ export const createCreateProcedures = () => {
 				const compareBaseBranch = resolveWorkspaceBaseBranch({
 					workspaceBaseBranch: project.workspaceBaseBranch,
 					defaultBranch: project.defaultBranch,
-					knownBranches,
+					knownBranches: knownBranches?.all,
 				});
 
 				let imported = 0;
@@ -1150,7 +1154,7 @@ export const createCreateProcedures = () => {
 				const compareBaseBranch = resolveWorkspaceBaseBranch({
 					workspaceBaseBranch: project.workspaceBaseBranch,
 					defaultBranch: project.defaultBranch,
-					knownBranches,
+					knownBranches: knownBranches?.all,
 				});
 
 				const allExternalWorktrees = await listExternalWorktrees(
