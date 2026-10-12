@@ -125,6 +125,9 @@ export function DashboardSidebarWorkspaceItem({
 			taskId: isLinked ? null : task.id,
 		});
 	};
+	const handleUnlinkTask = () => {
+		v2WorkspaceActions.updateWorkspace(id, { taskId: null });
+	};
 	const isPending = pendingTransaction?.type === "insert";
 
 	const {
@@ -282,6 +285,7 @@ export function DashboardSidebarWorkspaceItem({
 							onRemovePullRequest={handleRemovePullRequest}
 							taskId={taskId}
 							onToggleTask={handleToggleTask}
+							onUnlinkTask={handleUnlinkTask}
 							onRename={startRename}
 							onDelete={requestDelete}
 							onToggleUnread={handleToggleUnread}
@@ -374,6 +378,7 @@ export function DashboardSidebarWorkspaceItem({
 						onRemovePullRequest={handleRemovePullRequest}
 						taskId={taskId}
 						onToggleTask={handleToggleTask}
+						onUnlinkTask={handleUnlinkTask}
 						onRename={startRename}
 						onDelete={requestDelete}
 						onToggleUnread={handleToggleUnread}
